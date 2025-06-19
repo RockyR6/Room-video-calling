@@ -62,6 +62,14 @@ const MeetingTypeList = () => {
       }
     }
 
+    const handleJoinMeeting = () => {
+      if (!values.link) {
+        toast('Please enter a meeting link')
+        return
+      }
+      router.push(values.link)
+    }
+
     const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetails?.id}`
 
   return (
@@ -106,24 +114,26 @@ const MeetingTypeList = () => {
             <label className="text-base text-normal leading-[22px] text-sky-100">
               Add a description
             </label>
-            <Textarea onChange={(e) => {
-              setValues({...values, description: e.target.value})
-            }}
-            className="border-none bg-dark-2 focus-visible:ring-0 focus-visible:ring-offset-0"/>
+            <Textarea 
+              onChange={(e) => {
+                setValues({...values, description: e.target.value})
+              }}
+              className="border-none bg-dark-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
           </div>
           <div className="flex w-full flex-col gap-2.5">
              <label className="text-base text-normal leading-[22px] text-sky-100">
               Select date and time
             </label>
             <ReactDatePicker
-            selected={values.dateTime}
-            onChange={(date) => setValues({...values, dateTime: date!})}
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-            timeCaption="time"
-            dateFormat="MMMM d, yyyy h:mm aa"
-            className="w-full rounded bg-dark-2 p-2 focus:outline-none text-white"
+              selected={values.dateTime}
+              onChange={(date: Date | null) => setValues({...values, dateTime: date || new Date()})}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              timeCaption="time"
+              dateFormat="MMMM d, yyyy h:mm aa"
+              className="w-full rounded bg-dark-2 p-2 focus:outline-none text-white"
             />
           </div>
         </MeetingModal>
@@ -132,7 +142,6 @@ const MeetingTypeList = () => {
           isOpen={meetingState === 'isScheduleMeeting'}
           onClose={() => setMeetingState(undefined)}
           title='Meeting Created'
-          className='text-center'
           handleClick={() => {
             navigator.clipboard.writeText(meetingLink)
             toast('Link copied')
@@ -140,7 +149,6 @@ const MeetingTypeList = () => {
           image={'/icons/checked.svg'}
           buttonIcon="/icons/copy.svg"
           buttonText="Copy Meeting Link"
-          
         />
       )}
       
@@ -148,25 +156,23 @@ const MeetingTypeList = () => {
         isOpen={meetingState === 'isInstantMeeting'}
         onClose={() => setMeetingState(undefined)}
         title='Start an Instant Meeting'
-        className='text-center'
         buttonText='Start Meeting'
         handleClick={createMeeting}
       />
 
       <MeetingModal
-  isOpen={meetingState === 'isJoiningMeeting'}
-  onClose={() => setMeetingState(undefined)}
-  title='Type the link here'
-  className='text-center'
-  buttonText='Join Meeting'
-  handleClick={() => router.push(values.link)}
->
-  <Input 
-    placeholder="Meeting link"
-    onChange={(e) => setValues({...values, link: e.target.value})}
-    className="border-none bg-dark-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-  />
-</MeetingModal>
+        isOpen={meetingState === 'isJoiningMeeting'}
+        onClose={() => setMeetingState(undefined)}
+        title='Type the link here'
+        buttonText='Join Meeting'
+        handleClick={handleJoinMeeting}
+      >
+        <Input 
+          placeholder="Meeting link"
+          onChange={(e) => setValues({...values, link: e.target.value})}
+          className="border-none bg-dark-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+        />
+      </MeetingModal>
 
     </section>
   )
